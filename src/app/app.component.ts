@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { DataService } from './services/data.service';
-import { Data, Item } from './models/data.module';
+import * as Model from './models/data.module';
 import * as _ from 'lodash';
 import Packer from './packer';
 
@@ -11,8 +11,8 @@ import Packer from './packer';
 })
 export class AppComponent {
   title: string = 'Grill Master';
-  data: Data[] = [];
-  selectedMenu: Data = null;
+  data: Model.RawData[] = [];
+  selectedMenu: Model.RawData = null;
 
   //Grill
   grillLength: number = 20;
@@ -27,7 +27,7 @@ export class AppComponent {
   canvasHeight: number = this.grillLength * 10;
 
   //Rounds
-  rounds: any[] = [];
+  rounds: Model.Round[] = [];
   totalRounds = 0;
   selectedRound: number = 0;
   currentRound: number = this.selectedRound + 1;
@@ -37,15 +37,14 @@ export class AppComponent {
   ngOnInit(): void {
     this.canvas.nativeElement.width = this.canvasWidth;
     this.canvas.nativeElement.height = this.canvasHeight;
-
     this.ctx = this.canvas.nativeElement.getContext('2d');
+
     this.dataService.fetchData().subscribe((data: any) => {
       this.data = data;
-      console.log(this.data);
     });
   }
 
-  onSelectMenu(selectedMenu) {
+  onSelectMenu(selectedMenu: any): void {
     this.selectedRound = 0;
     this.currentRound = 1;
     const selectedMenuIndex: number = _.findIndex(this.data, [
@@ -57,7 +56,7 @@ export class AppComponent {
     this.calculateRounds();
   }
 
-  findFitItems(items: any[]) {
+  findFitItems(items: Model.Item[]): Model.Item[] {
     return items.filter((item) => {
       if (item.hasOwnProperty('fit')) {
         return item;
@@ -65,12 +64,12 @@ export class AppComponent {
     });
   }
 
-  calculateRounds() {
+  calculateRounds(): void {
     let pck = new Packer(this.grillWidth, this.grillLength);
-    let totalItemsSurfaceArea = 0;
-    let flatList = [];
+    let totalItemsSurfaceArea: number = 0;
+    let flatList: Model.Item[] = [];
 
-    this.selectedMenu.items.forEach((item) => {
+    this.selectedMenu.items.forEach((item: Model.RawItem) => {
       totalItemsSurfaceArea += item.Length * item.Width * item.Quantity;
 
       for (let index = 0; index < item.Quantity; index++) {
@@ -80,12 +79,12 @@ export class AppComponent {
 
     this.totalRounds = Math.ceil(totalItemsSurfaceArea / this.grillSurfaceArea);
 
-    let rounds = [];
-    let tempNotFitItems = [];
+    let rounds: Model.Round[] = [];
+    let tempNotFitItems: Model.Item[] = [];
 
     pck.fit(flatList);
 
-    let fitItems = this.findFitItems(flatList);
+    let fitItems: Model.Item[] = this.findFitItems(flatList);
 
     for (let x = 0; x < this.totalRounds; x++) {
       if (tempNotFitItems.length > 0) {
@@ -113,7 +112,7 @@ export class AppComponent {
     this.drawLayout(selectedRound.fit);
   }
 
-  onRoundChange(step) {
+  onRoundChange(step: number): void {
     if (
       this.selectedRound + step < 0 ||
       this.selectedRound + step >= this.rounds.length
@@ -127,7 +126,7 @@ export class AppComponent {
     this.drawLayout(selectedRound.fit);
   }
 
-  drawLayout(currentRound: any[]) {
+  drawLayout(currentRound: Model.Item[]): void {
     currentRound.forEach((item) => {
       this.ctx.beginPath();
       this.ctx.rect(item.fit.x * 10, item.fit.y * 10, item.w * 10, item.h * 10);
@@ -137,14 +136,14 @@ export class AppComponent {
     });
   }
 
-  clearCanvas() {
+  clearCanvas(): void {
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
   }
 
-  getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
+  getRandomColor(): string {
+    let letters: string = '0123456789ABCDEF';
+    let color: string = '#';
+    for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;

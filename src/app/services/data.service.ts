@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Data } from '../models/data.module';
+import { RawData } from '../models/data.module';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash';
 
@@ -13,7 +13,7 @@ export class DataService {
   constructor(private http: HttpClient) {}
   fetchData() {
     return this.http.get(`${this.ROOT_URL}/api/GrillMenu`).pipe(
-      map((data: Data) => {
+      map((data: RawData) => {
         return _.orderBy(data, ['menu'], ['asc']);
       })
     );

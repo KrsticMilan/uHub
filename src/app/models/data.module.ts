@@ -1,11 +1,13 @@
-export interface Data {
+import { iteratee } from 'lodash';
+
+export interface RawData {
   $id: string;
   id: string;
-  items: [Item];
+  items: RawItem[];
   menu: string;
 }
 
-export interface Item {
+export interface RawItem {
   $id: string;
   Duration: string;
   id: string;
@@ -13,4 +15,17 @@ export interface Item {
   Name: string;
   Quantity: number;
   Width: number;
+}
+
+export interface Item {
+  h: number;
+  w: number;
+  name: string;
+  rotate?: boolean;
+  fit?: any;
+}
+
+export interface Round {
+  fit: Item[];
+  name: string;
 }
